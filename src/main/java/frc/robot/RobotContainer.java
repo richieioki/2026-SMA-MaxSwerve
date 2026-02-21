@@ -24,7 +24,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import java.util.List;
@@ -74,11 +76,14 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    m_driverController.rightBumper().onTrue(Commands.runOnce(() -> m_robotDrive.setX()));
+    m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_robotDrive.setX()));
 
 
     //*************SMA Commands **************************************/
-    
+    m_driverController.rightBumper().whileTrue(new SequentialCommandGroup(m_shooter.shootCommand(), 
+        new WaitCommand(0.5), 
+        m_shooter.feederCommand())
+        ).onFalse(m_shooter.stopShooting());
     
   }
 

@@ -23,10 +23,10 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-  public static final class PickUpConstants {
-    public static final int OutsidePickupPWN = 5;
-    public static final int InsidePickupPWN = 4;
-    public static final int PickupRotorMotor = 0;
+  public static final class IntakeConstants {
+    public static final int OutsideIntakePWM = 5;
+    public static final int InsideIntakePWM = 4;
+    public static final int RotatorPWM = 0;
 
     public static final double intakeSpeed = 0.8f;
   }
