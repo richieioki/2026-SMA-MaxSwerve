@@ -22,6 +22,24 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static final class PickUpConstants {
+    public static final int OutsidePickupPWN = 5;
+    public static final int InsidePickupPWN = 4;
+    public static final int PickupRotorMotor = 0;
+
+    public static final double intakeSpeed = 0.8f;
+  }
+
+  public static final class ShooterConstants {
+    public static final int LowerShooterMotorPWM = 3;
+    public static final int UpperShooterMotorPWM = 2;
+    public static final int FeederMotorPWM = 1;
+
+    public static final double ShooterSpeed = 0.7f;
+    public static final double FeederSpeed = 1.0f;
+  }
+
   public static final class DriveConstants {
     // Driving Parameters - Note that these are not the maximum capable speeds of
     // the robot, rather the allowed maximum speeds
@@ -87,8 +105,8 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
 
-    public static final double kPXController = 1;
-    public static final double kPYController = 1;
+    public static final double kPXController = .3;
+    public static final double kPYController = .3;
     public static final double kPThetaController = 1;
 
     // Constraint for the motion profiled robot angle controller
