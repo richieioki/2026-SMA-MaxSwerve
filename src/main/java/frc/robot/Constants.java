@@ -28,7 +28,12 @@ public final class Constants {
     public static final int InsideIntakePWM = 4;
     public static final int RotatorPWM = 0;
 
-    public static final double intakeSpeed = 0.8f;
+    public static final double intakeSpeed = 0.5f;
+
+    public static final int EncoderChannelA = 9;
+    public static final int EncoderChannelB = 8;
+
+    public static final int EncoderDownPosition = -569;
   }
 
   public static final class ShooterConstants {
