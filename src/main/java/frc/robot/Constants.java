@@ -34,10 +34,10 @@ public final class Constants {
   public static final class ShooterConstants {
     public static final int LowerShooterMotorPWM = 3;
     public static final int UpperShooterMotorPWM = 2;
-    public static final int FeederMotorPWM = 1;
+    public static final int FeederMotorPWM = 9;
 
     public static final double ShooterSpeed = 0.7f;
-    public static final double FeederSpeed = 1.0f;
+    public static final double FeederSpeed = 0.8f;
   }
 
   public static final class DriveConstants {

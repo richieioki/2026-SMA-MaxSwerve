@@ -23,7 +23,7 @@ public class Intake extends SubsystemBase {
         // TODO Auto-generated method stub
         super.periodic();
 
-        Rotator.set(0.5 * controller.getRawAxis(5));
+        Rotator.set(0.5 * controller.getRightTriggerAxis());
     }
 
     public Command runIntake() {

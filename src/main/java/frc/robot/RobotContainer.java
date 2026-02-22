@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.PS4Controller.Button;
 import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Shooter;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -76,14 +77,11 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_robotDrive.setX()));
+    //m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_robotDrive.setX()));
 
 
     //*************SMA Commands **************************************/
-    m_driverController.rightBumper().whileTrue(new SequentialCommandGroup(m_shooter.shootCommand(), 
-        new WaitCommand(0.5), 
-        m_shooter.feederCommand())
-        ).onFalse(m_shooter.stopShooting());
+    m_driverController.rightBumper().whileTrue(new ShooterCommand(m_shooter));
     
   }
 
