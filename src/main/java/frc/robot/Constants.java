@@ -35,6 +35,9 @@ public final class Constants {
     public static final int EncoderChannelB = 8;
 
     public static final int EncoderDownPosition = -569;
+    public static final int EncoderHalfwayPosition = -285;
+    public static final int EncoderUpPosition = 0;
+    public static final int kPositionTolerance = 10;
   }
 
   public static final class ShooterConstants {
