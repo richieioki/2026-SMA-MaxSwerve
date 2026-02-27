@@ -14,6 +14,7 @@ public class ShooterCommand extends Command {
 
     public ShooterCommand(Shooter shooter) {
         m_shooter = shooter;
+        addRequirements(m_shooter);
     }
 
     @Override

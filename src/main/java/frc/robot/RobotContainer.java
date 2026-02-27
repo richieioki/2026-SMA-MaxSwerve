@@ -36,7 +36,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Shooter m_shooter = new Shooter();
-  private final Intake m_Intake = new Intake(m_driverController);
+  private final Intake m_Intake = new Intake();
   private final Climber m_climber = new Climber();
 
   // Auto chooser — populated from deploy/pathplanner/autos/ at startup
@@ -82,14 +82,18 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
 
-    //m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_robotDrive.setX()));
-
-
     //*************SMA Commands **************************************/
-    m_driverController.rightBumper().whileTrue(new ShooterCommand(m_shooter));
+    
+    // Right Trigger (Hold) -> Shoot
+    m_driverController.rightTrigger(0.5).whileTrue(new ShooterCommand(m_shooter));
 
-    m_driverController.a().onTrue(Commands.runOnce(() -> m_Intake.spinIntake()))
-      .onFalse(Commands.runOnce(() -> m_Intake.stopIntake()));
+    // Right Bumper (Hold) -> Spin Intake
+    m_driverController.rightBumper()
+        .whileTrue(m_Intake.runIntake())
+        .onFalse(Commands.runOnce(() -> m_Intake.stopIntake()));
+
+    // Left Bumper (Press) -> Cycle Intake Position (Up -> Down -> Halfway)
+    m_driverController.leftBumper().onTrue(new frc.robot.commands.IntakeCycleCommand(m_Intake));
   }
 
   /**
