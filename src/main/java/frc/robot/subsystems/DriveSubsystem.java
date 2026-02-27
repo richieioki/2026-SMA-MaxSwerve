@@ -4,12 +4,15 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.hal.FRCNetComm.tInstances;
-import edu.wpi.first.hal.FRCNetComm.tResourceType;
-
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.ModuleConfig;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
-
+import edu.wpi.first.hal.FRCNetComm.tInstances;
+import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,11 +21,14 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants.DriveConstants;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleConstants;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
@@ -65,6 +71,36 @@ public class DriveSubsystem extends SubsystemBase {
     // Usage reporting for MAXSwerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
     m_gyro.zeroYaw();
+
+    // Configure PathPlanner AutoBuilder (2026 API)
+    // RobotConfig values are derived from Constants so they stay in sync.
+    // Mass / MOI are estimates — measure or use SysId for better accuracy.
+    RobotConfig config = new RobotConfig(
+        /* massKG  */ 60.0,
+        /* MOI     */ 6.0,
+        new ModuleConfig(
+            /* wheelRadiusMeters   */ ModuleConstants.kWheelDiameterMeters / 2.0,
+            /* maxDriveVelocityMPS */ ModuleConstants.kDriveWheelFreeSpeedRps
+                                        * ModuleConstants.kWheelCircumferenceMeters,
+            /* wheelCOF            */ 1.2,
+            /* driveMotor (NEO)    */ DCMotor.getNEO(1)
+                                        .withReduction(ModuleConstants.kDrivingMotorReduction),
+            /* driveCurrentLimit   */ 50,
+            /* numMotors           */ 1),
+        // Module locations: FL, FR, BL, BR — must match kDriveKinematics order
+        DriveConstants.kDriveKinematics.getModules());
+
+    AutoBuilder.configure(
+        this::getPose,
+        this::resetOdometry,
+        this::getRobotRelativeSpeeds,
+        this::driveRobotRelative,
+        new PPHolonomicDriveController(
+            new PIDConstants(AutoConstants.kPXController, 0, 0),      // translation PID
+            new PIDConstants(AutoConstants.kPThetaController, 0, 0)), // rotation PID
+        config,
+        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+        this);
   }
 
   @Override
@@ -130,6 +166,35 @@ public class DriveSubsystem extends SubsystemBase {
             : new ChassisSpeeds(xSpeedDelivered, ySpeedDelivered, rotDelivered));
     SwerveDriveKinematics.desaturateWheelSpeeds(
         swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
+    m_frontLeft.setDesiredState(swerveModuleStates[0]);
+    m_frontRight.setDesiredState(swerveModuleStates[1]);
+    m_rearLeft.setDesiredState(swerveModuleStates[2]);
+    m_rearRight.setDesiredState(swerveModuleStates[3]);
+  }
+
+  /**
+   * Returns the current robot-relative ChassisSpeeds.
+   * Required by PathPlanner AutoBuilder.
+   *
+   * @return Robot-relative ChassisSpeeds from current module states.
+   */
+  public ChassisSpeeds getRobotRelativeSpeeds() {
+    return DriveConstants.kDriveKinematics.toChassisSpeeds(
+        m_frontLeft.getState(),
+        m_frontRight.getState(),
+        m_rearLeft.getState(),
+        m_rearRight.getState());
+  }
+
+  /**
+   * Drives the robot using robot-relative ChassisSpeeds.
+   * Required by PathPlanner AutoBuilder.
+   *
+   * @param speeds Robot-relative ChassisSpeeds to apply.
+   */
+  public void driveRobotRelative(ChassisSpeeds speeds) {
+    var swerveModuleStates = DriveConstants.kDriveKinematics.toSwerveModuleStates(speeds);
+    SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveConstants.kMaxSpeedMetersPerSecond);
     m_frontLeft.setDesiredState(swerveModuleStates[0]);
     m_frontRight.setDesiredState(swerveModuleStates[1]);
     m_rearLeft.setDesiredState(swerveModuleStates[2]);
