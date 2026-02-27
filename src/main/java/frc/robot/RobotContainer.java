@@ -19,6 +19,9 @@ import frc.robot.commands.ShooterCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Climber;
+import frc.robot.commands.ClimbCommand;
+import com.pathplanner.lib.auto.NamedCommands;
 
 /*
  * This class is where the bulk of the robot should be declared.  Since Command-based is a
@@ -34,6 +37,7 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Shooter m_shooter = new Shooter();
   private final Intake m_Intake = new Intake(m_driverController);
+  private final Climber m_climber = new Climber();
 
   // Auto chooser — populated from deploy/pathplanner/autos/ at startup
   private final SendableChooser<Command> m_autoChooser;
@@ -44,6 +48,8 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    registerNamedCommands();
+
     // Configure the button bindings
     configureButtonBindings();
 
@@ -84,6 +90,18 @@ public class RobotContainer {
 
     m_driverController.a().onTrue(Commands.runOnce(() -> m_Intake.spinIntake()))
       .onFalse(Commands.runOnce(() -> m_Intake.stopIntake()));
+  }
+
+  /**
+   * Registers PathPlanner NamedCommands so they can be triggered from the GUI.
+   */
+  private void registerNamedCommands() {
+    // Register the shooting command. We use withTimeout to ensure it doesn't run forever if it's not interrupted,
+    // though PathPlanner handles command lifecycle internally as well.
+    NamedCommands.registerCommand("Shoot", new ShooterCommand(m_shooter).withTimeout(2.0));
+
+    // Register our new automated climbing sequence! 
+    NamedCommands.registerCommand("Climb", new ClimbCommand(m_climber));
   }
 
   /**
