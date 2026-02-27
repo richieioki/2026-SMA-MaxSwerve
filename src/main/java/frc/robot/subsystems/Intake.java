@@ -48,7 +48,7 @@ public class Intake extends SubsystemBase {
     }
 
     public void spinIntake() {
-        OuterInake.set(-Constants.IntakeConstants.intakeSpeed);
+        OuterInake.set(-Constants.IntakeConstants.intakeSpeedouter);
         InnerIntake.set(Constants.IntakeConstants.intakeSpeed);
     }
 

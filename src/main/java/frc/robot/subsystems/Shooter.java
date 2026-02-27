@@ -23,7 +23,7 @@ public class Shooter extends SubsystemBase{
     }
 
     public void runShooter() {
-        UpperShooter.set(-Constants.ShooterConstants.ShooterSpeed);
+        UpperShooter.set(-Constants.ShooterConstants.ShooterSpeedupper);
         LowerShooter.set(Constants.ShooterConstants.ShooterSpeed);
     }
     
