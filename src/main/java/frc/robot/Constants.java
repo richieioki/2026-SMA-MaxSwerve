@@ -34,10 +34,10 @@ public final class Constants {
     public static final int EncoderChannelA = 9;
     public static final int EncoderChannelB = 8;
 
-    public static final int EncoderDownPosition = -569;
-    public static final int EncoderHalfwayPosition = -285;
+    public static final int EncoderDownPosition = -500;
+    public static final int EncoderHalfwayPosition = -275;
     public static final int EncoderUpPosition = 0;
-    public static final int kPositionTolerance = 10;
+    public static final int kPositionTolerance = 25;
   }
 
   public static final class ShooterConstants {
@@ -115,9 +115,9 @@ public final class Constants {
     public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
     public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
 
-    public static final double kPXController = 1;
+    public static final double kPXController = 10;
     public static final double kPYController = 1;
-    public static final double kPThetaController = 1;
+    public static final double kPThetaController = 10;
 
     // Constraint for the motion profiled robot angle controller
     public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(

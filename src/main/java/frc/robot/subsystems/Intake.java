@@ -10,11 +10,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class Intake extends SubsystemBase {
+    private boolean isTest;
+
     private final Spark OuterInake, InnerIntake, Rotator;
     private Encoder intakEncoder = new Encoder(Constants.IntakeConstants.EncoderChannelA, 
         Constants.IntakeConstants.EncoderChannelB);
 
-    private final PIDController rotatorPID = new PIDController(0.01, 0, 0); 
+    private final PIDController rotatorPID = new PIDController(0.003, 0, 0); 
     private int targetPosition = Constants.IntakeConstants.EncoderUpPosition;
 
     public Intake() {
@@ -29,9 +31,12 @@ public class Intake extends SubsystemBase {
     public void periodic() {
         super.periodic();
 
+        if(isTest)
+            return;
+
         double output = rotatorPID.calculate(intakEncoder.get(), targetPosition);
         output = edu.wpi.first.math.MathUtil.clamp(output, -0.6, 0.6);
-        Rotator.set(output);
+        Rotator.set(-output);
 
         SmartDashboard.putNumber("Intake Encoder", intakEncoder.get());
         SmartDashboard.putNumber("Intake Target", targetPosition);
@@ -70,6 +75,14 @@ public class Intake extends SubsystemBase {
 
     public int getEncoderCount() {
         return intakEncoder.get();
+    }
+
+    public void IntakeTest(double speed) {
+        if(!isTest)
+            isTest = true;
+        
+        SmartDashboard.putNumber("Intake Test Speed", speed);
+        Rotator.set(speed);
     }
 }
 

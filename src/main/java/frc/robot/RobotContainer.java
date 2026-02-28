@@ -99,6 +99,7 @@ public class RobotContainer {
   /**
    * Registers PathPlanner NamedCommands so they can be triggered from the GUI.
    */
+
   private void registerNamedCommands() {
     // Register the shooting command. We use withTimeout to ensure it doesn't run forever if it's not interrupted,
     // though PathPlanner handles command lifecycle internally as well.
@@ -115,5 +116,15 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoChooser.getSelected();
+  }
+
+  public void testPeriodic() {
+
+    if(m_driverController.povUp().getAsBoolean())
+      m_Intake.IntakeTest(-0.3 );
+    else  if(m_driverController.povDown().getAsBoolean())
+      m_Intake.IntakeTest(0.3 );
+    else 
+      m_Intake.IntakeTest(0 );
   }
 }
