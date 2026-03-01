@@ -7,11 +7,15 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
@@ -39,8 +43,7 @@ public class RobotContainer {
   private final Intake m_Intake = new Intake();
   private final Climber m_climber = new Climber();
 
-  // Auto chooser — populated from deploy/pathplanner/autos/ at startup
-  private final SendableChooser<Command> m_autoChooser;
+
 
   
 
@@ -65,10 +68,6 @@ public class RobotContainer {
                 true),
             m_robotDrive));
 
-    // Build auto chooser from all autos found in deploy/pathplanner/autos/
-    // AutoBuilder must be configured (done in DriveSubsystem) before calling this.
-    m_autoChooser = AutoBuilder.buildAutoChooser();
-    SmartDashboard.putData("Auto Chooser", m_autoChooser);
   }
 
   /**
@@ -115,7 +114,59 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return m_autoChooser.getSelected();
+    // 1. Determine Alliance side for correct starting pose location
+    // We default to blue if it cannot be read
+    boolean isRedAlliance = DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
+    
+    // 2. Define starting pose. Adjust X/Y to actual field starting locations if known!
+    // Example: Red starts at X=14.5, Blue starts at X=2.0
+    Pose2d startingPose;
+    if (isRedAlliance) {
+        // Red Alliance: Facing negative X (180 degrees)
+        startingPose = new Pose2d(14.5, 5.5, Rotation2d.fromDegrees(180));
+    } else {
+        // Blue Alliance: Facing positive X (0 degrees)
+        startingPose = new Pose2d(2.0, 5.5, Rotation2d.fromDegrees(0));
+    }
+
+    // 3. Reset the robot's odometry to the chosen starting pose
+    m_robotDrive.resetOdometry(startingPose);
+
+    // 4. We want to drive backwards 2 meters relative to the new starting location
+    // We add/subtract based on field coordinates
+    Pose2d targetPose;
+    if (isRedAlliance) {
+        // Backwards for red is POSITIVE X
+        targetPose = new Pose2d(
+            startingPose.getX() + 2.0, 
+            startingPose.getY(), 
+            startingPose.getRotation()
+        );
+    } else {
+        // Backwards for blue is NEGATIVE X
+        targetPose = new Pose2d(
+            startingPose.getX() - 2.0, 
+            startingPose.getY(), 
+            startingPose.getRotation()
+        );
+    }
+
+    // 5. Create a path finding command to that target
+    Command driveBackwardCmd = AutoBuilder.pathfindToPose(
+        targetPose, 
+        new com.pathplanner.lib.path.PathConstraints(
+            3.0, 3.0, 
+            edu.wpi.first.math.util.Units.degreesToRadians(360), 
+            edu.wpi.first.math.util.Units.degreesToRadians(360)
+        ),
+        0.0 // Goal end velocity
+    );
+
+    // 6. Return the sequential command group (Drive then Shoot)
+    return new SequentialCommandGroup(
+        driveBackwardCmd,
+        new ShooterCommand(m_shooter)
+    );
   }
 
   public void testPeriodic() {
