@@ -82,34 +82,26 @@ public class DriveSubsystem extends SubsystemBase {
     m_gyro.zeroYaw();
 
     // Configure PathPlanner AutoBuilder (2026 API)
-    // RobotConfig values are derived from Constants so they stay in sync.
-    // Mass / MOI are estimates — measure or use SysId for better accuracy.
-    RobotConfig config = new RobotConfig(
-        /* massKG  */ 60.0,
-        /* MOI     */ 6.0,
-        new ModuleConfig(
-            /* wheelRadiusMeters   */ ModuleConstants.kWheelDiameterMeters / 2.0,
-            /* maxDriveVelocityMPS */ ModuleConstants.kDriveWheelFreeSpeedRps
-                                        * ModuleConstants.kWheelCircumferenceMeters,
-            /* wheelCOF            */ 1.2,
-            /* driveMotor (NEO)    */ DCMotor.getNEO(1)
-                                        .withReduction(ModuleConstants.kDrivingMotorReduction),
-            /* driveCurrentLimit   */ 50,
-            /* numMotors           */ 1),
-        // Module locations: FL, FR, BL, BR — must match kDriveKinematics order
-        DriveConstants.kDriveKinematics.getModules());
-
-    AutoBuilder.configure(
-        this::getPose,
-        this::resetOdometry,
-        this::getRobotRelativeSpeeds,
-        (speeds, feedforwards) -> driveRobotRelative(speeds),
-        new PPHolonomicDriveController(
-            new PIDConstants(AutoConstants.kPXController, 0, 0),      // translation PID
-            new PIDConstants(AutoConstants.kPThetaController, 0, 0)), // rotation PID
-        config,
-        () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
-        this);
+    // Load the RobotConfig from the GUI settings. You should probably
+    // store this in your Constants file
+    try {
+      RobotConfig config = RobotConfig.fromGUISettings();
+      
+      AutoBuilder.configure(
+          this::getPose,
+          this::resetOdometry,
+          this::getRobotRelativeSpeeds,
+          (speeds, feedforwards) -> driveRobotRelative(speeds),
+          new PPHolonomicDriveController(
+              new PIDConstants(AutoConstants.kPXController, 0, 0),      // translation PID
+              new PIDConstants(AutoConstants.kPThetaController, 0, 0)), // rotation PID
+          config,
+          () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
+          this);
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
 
     SmartDashboard.putData(m_Field);
   }
