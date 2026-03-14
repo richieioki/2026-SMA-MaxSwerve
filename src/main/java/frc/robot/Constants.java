@@ -26,15 +26,16 @@ public final class Constants {
   public static final class IntakeConstants {
     public static final int OutsideIntakePWM = 5;
     public static final int InsideIntakePWM = 4;
-    public static final int RotatorPWM = 0;
+    public static final int RotatorID1 = 1, RotatorID2 = 2;
 
-    public static final double intakeSpeed = 0.65;
-    public static final double intakeSpeedouter = 0.5;
+    public static final double intakeSpeed = 0.8
+    ;
+    public static final double intakeSpeedouter = -0.6;
 
     public static final int EncoderChannelA = 9;
     public static final int EncoderChannelB = 8;
 
-    public static final int EncoderDownPosition = -500;
+    public static final int EncoderDownPosition = -505;
     public static final int EncoderHalfwayPosition = -275;
     public static final int EncoderUpPosition = 0;
     public static final int kPositionTolerance = 25;
@@ -46,7 +47,7 @@ public final class Constants {
     public static final int FeederMotorPWM = 9;
 
     public static final double ShooterSpeed = 0.8f;
-    public static final double ShooterSpeedupper = 0.93f;
+    public static final double ShooterSpeedupper = 0.99f;
     public static final double FeederSpeed = 0.8f;
   }
 
@@ -74,15 +75,15 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
-    public static final int kFrontLeftDrivingCanId = 1;
-    public static final int kRearLeftDrivingCanId = 4;
-    public static final int kFrontRightDrivingCanId = 8;
-    public static final int kRearRightDrivingCanId = 6;
+    public static final int kFrontLeftDrivingCanId = 15;
+    public static final int kRearLeftDrivingCanId = 11;
+    public static final int kFrontRightDrivingCanId = 17;
+    public static final int kRearRightDrivingCanId = 13;
 
-    public static final int kFrontLeftTurningCanId = 2;
-    public static final int kRearLeftTurningCanId = 3;
-    public static final int kFrontRightTurningCanId = 7;
-    public static final int kRearRightTurningCanId = 5;
+    public static final int kFrontLeftTurningCanId = 14;
+    public static final int kRearLeftTurningCanId = 10;
+    public static final int kFrontRightTurningCanId = 16;
+    public static final int kRearRightTurningCanId = 12;
 
     public static final boolean kGyroReversed = true;
   }

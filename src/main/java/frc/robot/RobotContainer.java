@@ -7,8 +7,11 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,6 +27,8 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Climber;
 import frc.robot.commands.ClimbCommand;
 import frc.robot.commands.DriveBackwardsCommand;
+import frc.robot.commands.PointToPointPID;
+
 import com.pathplanner.lib.auto.NamedCommands;
 
 /*
@@ -40,12 +45,9 @@ public class RobotContainer {
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Shooter m_shooter = new Shooter();
   private final Intake m_Intake = new Intake();
-  private final Climber m_climber = new Climber();
+  private final Climber m_climber = new Climber();  
 
-
-
-  
-
+  final SendableChooser<Command> m_chooser = new SendableChooser<Command>();
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -67,6 +69,17 @@ public class RobotContainer {
                 true),
             m_robotDrive));
 
+    m_chooser.addOption("Simple Back and Shoot", 
+      new SequentialCommandGroup(
+        new DriveBackwardsCommand(m_robotDrive),
+        new ShooterCommand(m_shooter).withTimeout(3.0)
+    ));
+    
+    m_chooser.addOption("Test P2P",
+      new PointToPointPID(m_robotDrive, new Pose2d(-1.5, 0, Rotation2d.fromDegrees(0))));
+
+
+    SmartDashboard.putData("Auto Chooser", m_chooser);
   }
 
   /**
@@ -94,14 +107,16 @@ public class RobotContainer {
     m_driverController.leftBumper().onTrue(new frc.robot.commands.IntakeCycleCommand(m_Intake));
 
     // Y Button (Hold) -> Extend Climber (Placeholder)
-    m_driverController.y()
-        .whileTrue(Commands.runOnce(() -> m_climber.extend(), m_climber))
-        .onFalse(Commands.runOnce(() -> m_climber.stop(), m_climber));
+    m_driverController.y().onTrue(Commands.runOnce(()-> m_Intake.reverseIntake()))
+      .onFalse(Commands.runOnce(() -> m_Intake.stopIntake()));
+        
 
     // A Button (Hold) -> Retract Climber (Placeholder)
-    m_driverController.a()
-        .whileTrue(Commands.runOnce(() -> m_climber.retract(), m_climber))
-        .onFalse(Commands.runOnce(() -> m_climber.stop(), m_climber));
+    m_driverController.a().onTrue(Commands.runOnce(()->m_shooter.reverseShooter()))
+      .onFalse(Commands.runOnce(()->m_shooter.stop()));
+        
+
+    m_driverController.start().onTrue(Commands.run(() -> m_robotDrive.zeroHeading()));
   }
 
   /**
@@ -124,10 +139,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // Return a timed sequence: Drive backwards for 2 seconds (enforced), then shoot for up to 3 seconds
-    return new SequentialCommandGroup(
-        new DriveBackwardsCommand(m_robotDrive).withTimeout(2.5),
-        new ShooterCommand(m_shooter).withTimeout(3.0)
-    );
+    // return new SequentialCommandGroup(
+    //     new DriveBackwardsCommand(m_robotDrive).withTimeout(2.5),
+    //     new ShooterCommand(m_shooter).withTimeout(3.0)
+    // );
+    return m_chooser.getSelected();
+
   }
 
   public void testPeriodic() {

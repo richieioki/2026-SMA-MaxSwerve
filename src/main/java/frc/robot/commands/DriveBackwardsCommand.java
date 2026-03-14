@@ -7,7 +7,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class DriveBackwardsCommand extends Command {
     private final DriveSubsystem m_drive;
     private double startTime;
-    private final double duration = 2.0; // Seconds to drive backward
+    private final double duration = 0.25; // Seconds to drive backward
 
     /**
      * Creates a new DriveBackwardsCommand.
@@ -32,7 +32,7 @@ public class DriveBackwardsCommand extends Command {
         // Drive straight backward at 20% speed (assuming positive X is forward)
         // Adjust the -0.2 value depending on how fast you want the robot to move. 
         // 0.0 is Y (Strafe) and 0.0 is Rot (Turn)
-        m_drive.drive(-0.2, 0.0, 0.0, true);
+        m_drive.drive(-0.2, 0.0, 0.0, false);
     }
 
     // Called once the command ends or is interrupted.

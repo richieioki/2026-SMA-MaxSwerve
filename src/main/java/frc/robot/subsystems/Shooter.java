@@ -30,5 +30,11 @@ public class Shooter extends SubsystemBase{
     public void runFeeder() {
         Feeder.set(Constants.ShooterConstants.FeederSpeed);
     }
+
+    public void reverseShooter() {
+        UpperShooter.set(Constants.ShooterConstants.ShooterSpeedupper);
+        LowerShooter.set(-Constants.ShooterConstants.ShooterSpeed);
+        Feeder.set(-Constants.ShooterConstants.FeederSpeed);
+    }
 }
 
