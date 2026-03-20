@@ -44,7 +44,7 @@ public class RobotContainer {
   // The robot's subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
   private final Shooter m_shooter = new Shooter();
-  private final Intake m_Intake = new Intake();
+  private final Intake m_Intake = new Intake(m_driverController);
   private final Climber m_climber = new Climber();  
 
   final SendableChooser<Command> m_chooser = new SendableChooser<Command>();
@@ -72,11 +72,11 @@ public class RobotContainer {
     m_chooser.addOption("Simple Back and Shoot", 
       new SequentialCommandGroup(
         new DriveBackwardsCommand(m_robotDrive),
-        new ShooterCommand(m_shooter).withTimeout(3.0)
+        new ShooterCommand(m_shooter).withTimeout(5.0)
     ));
     
-    m_chooser.addOption("Test P2P",
-      new PointToPointPID(m_robotDrive, new Pose2d(-1.5, 0, Rotation2d.fromDegrees(0))));
+    //m_chooser.addOption("Test P2P",
+    //  new PointToPointPID(m_robotDrive, new Pose2d(-1.5, 0, Rotation2d.fromDegrees(0))));
 
 
     SmartDashboard.putData("Auto Chooser", m_chooser);
@@ -104,7 +104,7 @@ public class RobotContainer {
         .onFalse(Commands.runOnce(() -> m_Intake.stopIntake()));
 
     // Left Bumper (Press) -> Cycle Intake Position (Up -> Down -> Halfway)
-    m_driverController.leftBumper().onTrue(new frc.robot.commands.IntakeCycleCommand(m_Intake));
+    m_driverController.leftBumper().onTrue(Commands.runOnce(() -> m_Intake.ToggleIntakeState()));
 
     // Y Button (Hold) -> Extend Climber (Placeholder)
     m_driverController.y().onTrue(Commands.runOnce(()-> m_Intake.reverseIntake()))
@@ -148,12 +148,5 @@ public class RobotContainer {
   }
 
   public void testPeriodic() {
-
-    if(m_driverController.povUp().getAsBoolean())
-      m_Intake.IntakeTest(-0.3 );
-    else  if(m_driverController.povDown().getAsBoolean())
-      m_Intake.IntakeTest(0.3 );
-    else 
-      m_Intake.IntakeTest(0 );
   }
 }

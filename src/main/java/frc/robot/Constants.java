@@ -23,22 +23,24 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
+  //-45 -640
   public static final class IntakeConstants {
     public static final int OutsideIntakePWM = 5;
-    public static final int InsideIntakePWM = 4;
-    public static final int RotatorID1 = 1, RotatorID2 = 2;
+    // public static final int InsideIntakePWM = 4;
+    public static final int InsideIntakeCAN = 1, RotatorID2 = 2;
 
-    public static final double intakeSpeed = 0.8
-    ;
+    public static final double intakeSpeed = 0.5;
     public static final double intakeSpeedouter = -0.6;
 
     public static final int EncoderChannelA = 9;
     public static final int EncoderChannelB = 8;
 
-    public static final int EncoderDownPosition = -505;
-    public static final int EncoderHalfwayPosition = -275;
+    public static final double armSpeed = 0.4;
+    public static final double midtotopspeed = 0.25;
+    public static final int EncoderDownPosition = -590;
+    public static final int EncoderHalfwayPosition = -300;
     public static final int EncoderUpPosition = 0;
-    public static final int kPositionTolerance = 25;
+    public static final int kPositionTolerance = 10;
   }
 
   public static final class ShooterConstants {
